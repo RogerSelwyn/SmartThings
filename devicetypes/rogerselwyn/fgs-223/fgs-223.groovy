@@ -19,7 +19,7 @@
  */
  
 metadata {
-definition (name: "fgs-223", namespace: "rogerselwyn", author: "Roger Selwyn") {
+definition (name: "FGS-223", namespace: "RogerSelwyn", author: "Roger Selwyn") {
 capability "Switch"
 capability "Polling"
 capability "Configuration"
@@ -357,25 +357,21 @@ def zwaveEvent(physicalgraph.zwave.commands.centralscenev1.CentralSceneNotificat
         }
     } else {
         if (settings."20" == "0") logging("Switch configured as Momentary") else logging("Switch type not configured") 
-        switch (cmd.sceneNumber) {
-            // Momentary S1
-            case 1: // S1 1x click
-                buttonEvent(1, "pushed")
+        switch (cmd.keyAttributes) {
+            case 0: // 1x click
+                buttonEvent(cmd.sceneNumber, "1x click")
             break
-            case 2: // S2 1x click
-                buttonEvent(1, "held")
+            case 1: // 1x click
+                buttonEvent(cmd.sceneNumber, "released")
             break
-            case 3: // S1 2x click
-                buttonEvent(2, "pushed")
+            case 2: // 1x click
+                buttonEvent(cmd.sceneNumber, "held")
             break
-            case 4: // S2 2x click
-                buttonEvent(2, "held")
+            case 3: // 1x click
+                buttonEvent(cmd.sceneNumber, "2x click")
             break
-            case 5: // S1 3x click
-                buttonEvent(3, "pushed")
-            break
-            case 6: // S2 3x click
-                buttonEvent(3, "held")
+            case 4: // 1x click
+                buttonEvent(cmd.sceneNumber, "3x click")
             break
             default:
                 logging("Unhandled SceneActivationSet: ${cmd}")
