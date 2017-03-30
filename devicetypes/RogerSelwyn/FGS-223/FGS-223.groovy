@@ -19,7 +19,7 @@
  */
  
 metadata {
-definition (name: "FGS-223", namespace: "RogerSelwyn", author: "Roger Selwyn") {
+definition (name: "fgs-223", namespace: "rogerselwyn", author: "Roger Selwyn") {
 capability "Switch"
 capability "Polling"
 capability "Configuration"
