@@ -10,7 +10,7 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
- *	RogTP ASUS Wifi Presence
+ *	RogerSelwyn ASUS Wifi Presence
  *
  *	Author: Roger Selwyn, Based on original work by Stuart Buchanan with thanks
  *
@@ -19,7 +19,7 @@
 definition(
     name: "ASUS Wifi Presence",
     singleInstance: true,
-    namespace: "RogTP",
+    namespace: "RogerSelwyn",
     author: "Roger Selwyn",
     description: "Triggers Presence Status when HTTP GET Request is recieved",
     category: "My Apps",
