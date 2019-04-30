@@ -60,6 +60,7 @@ def installed() {
 	getToken()
 	DEBUG("Installed with rest api: $app.id")
     DEBUG("Installed with token: $state.accessToken")
+	addDeleteDevice(true, "All", null, 0)
     updateDevices()
 }
 
@@ -161,7 +162,6 @@ def createPeopleData () {
 }
 
 def updateDevices () {
-	addDeleteDevice(true, "All", null, 0)
     def processPeople = getChildDevices().size() - 1
     DEBUG("Old People: ${processPeople}; New People: ${noPeople}")
     if (noPeople > processPeople) { processPeople = noPeople}
