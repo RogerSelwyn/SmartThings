@@ -1,6 +1,6 @@
 # Smartthings Repository
 
-ASUS Wifi Presence Detector - Integrates to ASUS Merlin Router to detect MAC addresses present on the network.
+## ASUS Wifi Presence Detector - Integrates to ASUS Merlin Router to detect MAC addresses present on the network.
 
 * Put scripts in /jffs/scripts after enabling scripts on your router
 * Install SmartApp to Smartthings (after adding and publishing via IDE)
