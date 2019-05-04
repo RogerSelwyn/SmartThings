@@ -1,0 +1,102 @@
+#!/bin/sh
+
+function call_ST () {
+ pUser=$1
+ pState=$2
+ pInstance=$3
+ homeFile=/tmp/CheckUser/"$pUser"Home
+ url="$baseURL"Phone/"$pState"/"$pInstance""$atURL"
+ responseFile=/tmp/CheckUser/responseData
+ response=
+ bCurl=
+
+ echo "$pUser $pState $pInstance $homeFile"
+
+ if [ "$pState" = home ]
+ then
+  if [ ! -f $homeFile ]
+  then
+   touch $homeFile
+   bCurl=yes
+  fi
+ else
+  if [ -f $homeFile ]
+  then
+   rm -f $homeFile
+   bCurl=yes
+  fi
+ fi
+
+ if [ "$bCurl" = "yes" ]
+ then
+  curl $url -k -s -w "\n%{http_code}" > $responseFile
+  curlStatus=$(sed -n '2p' $responseFile)
+
+  if [ $curlStatus = 200 ]
+  then
+   echo Curl Status: "$curlStatus"
+   sed -n '1p' $responseFile > $peopleFile
+   rm $responseFile
+  else
+   echo Curl Status: "$curlStatus"
+  fi
+ fi
+}
+
+function processPerson () {
+ personNo=$1
+ personName=$2
+ personMAC=$3
+ macadresser=$(wl -i eth1 assoclist ; wl -i eth2 assoclist)
+ personStateFile=/tmp/CheckUser/personState
+
+ rm -f $personStateFile
+ echo "$personMAC" | tr ',' '\n' | while read item; do
+  case "$macadresser" in
+   *"$item"*)
+   touch $personStateFile
+   ;;
+  esac
+ done
+ if [ -f $personStateFile ]
+ then
+  personState=home
+ else
+  personState=away
+ fi
+ 
+ rm -f $personStateFile
+ call_ST $personName $personState $personNo
+
+}
+
+if [ ! -d /tmp/CheckUser ]
+ then
+  mkdir /tmp/CheckUser
+fi
+
+baseURL=https://graph-eu01-euwest1.api.smartthings.com/api/smartapps/installations/`cat /tmp/CheckUser/smartApp`/
+atURL=?access_token=`cat /tmp/CheckUser/accessToken`
+peopleFile=/tmp/CheckUser/peopleData
+responseFile=/tmp/CheckUser/responseData
+response=
+
+if [ ! -f $peopleFile ]
+ then
+  url="$baseURL"People"$atURL"
+  curl $url -k -s -w "\n%{http_code}"> $responseFile
+  curlStatus=$(sed -n '2p' $responseFile)
+
+  if [ $curlStatus = 200 ]
+  then
+   echo Curl Status: "$curlStatus"
+   sed -n '1p' $responseFile > $peopleFile
+   rm $responseFile
+  else
+   echo Curl Status: "$curlStatus"
+  fi
+fi
+
+cat $peopleFile | tr '@' '\n' | while read item; do
+  processPerson $item
+done
