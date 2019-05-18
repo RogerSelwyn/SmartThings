@@ -41,12 +41,14 @@ def mainPage() {
             input "noPeople", "number", title: "Enter number of people", range: "1..20", required: true, multiple:false, submitOnChange: true	
         }
 
-    	for (int i = 1; i < noPeople +1; i++) {
-            section(title: "Person ${i}") {
-                input "personName${i}", "text", title: "Name", required: true, submitOnChange: false
-                input "personMAC${i}", "text", title: "MAC addresses - delimited by comma", required: true, submitOnChange: false
+		if (noPeople) {
+            for (int i = 1; i < noPeople +1; i++) {
+                section(title: "Person ${i}") {
+                    input "personName${i}", "text", title: "Name", required: true, submitOnChange: false
+                    input "personMAC${i}", "text", title: "MAC addresses - delimited by comma", required: true, submitOnChange: false
+                }
             }
-	    }
+        }
 
 		section("Customize Application Label:") {
 			label title:"Application Label (optional)", required:false
