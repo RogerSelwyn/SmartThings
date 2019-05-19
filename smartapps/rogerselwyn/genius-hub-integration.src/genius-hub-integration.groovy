@@ -29,9 +29,9 @@ definition(
   author: 'Roger Selwyn',
   category: "My Apps",
   description: 'Integrate Genius Hub devices with SmartThings.',
-  iconUrl: 'https://raw.githubusercontent.com/RogerSelwyn/SmartThings/master/smartapps/rogerselwyn/genius-hub.src/assets/genius-hub-60.png',
-  iconX2Url: 'https://raw.githubusercontent.com/RogerSelwyn/SmartThings/master/smartapps/rogerselwyn/genius-hub.src/assets/genius-hub-120.png',
-  iconX3Url: 'https://raw.githubusercontent.com/RogerSelwyn/SmartThings/master/smartapps/rogerselwyn/genius-hub.src/assets/genius-hub-500.png',
+  iconUrl: 'https://raw.githubusercontent.com/RogerSelwyn/SmartThings/master/smartapps/rogerselwyn/genius-hub-integration.src/assets/genius-hub-60.png',
+  iconX2Url: 'https://raw.githubusercontent.com/RogerSelwyn/SmartThings/master/smartapps/rogerselwyn/genius-hub-integration.src/assets/genius-hub-120.png',
+  iconX3Url: 'https://raw.githubusercontent.com/RogerSelwyn/SmartThings/master/smartapps/rogerselwyn/genius-hub-integration.src/assets/genius-hub-500.png',
   singleInstance: true
 )
 
