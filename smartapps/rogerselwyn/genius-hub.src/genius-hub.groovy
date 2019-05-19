@@ -25,8 +25,10 @@ include 'asynchttp_v1'
 
 definition(
   name: 'Genius Hub Integration',
+  singleInstance: true,
   namespace: 'RogerSelwyn',
-  author: 'RogerSelwyn',
+  author: 'Roger Selwyn',
+  category: "My Apps",
   description: 'Integrate Genius Hub devices with SmartThings.',
   iconUrl: 'https://raw.githubusercontent.com/RogerSelwyn/SmartThings/master/smartapps/rogerselwyn/genius-hub.src/assets/genius-hub-60.png',
   iconX2Url: 'https://raw.githubusercontent.com/RogerSelwyn/SmartThings/master/smartapps/rogerselwyn/genius-hub.src/assets/genius-hub-120.png',
