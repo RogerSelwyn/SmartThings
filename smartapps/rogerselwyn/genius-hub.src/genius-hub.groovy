@@ -25,7 +25,6 @@ include 'asynchttp_v1'
 
 definition(
   name: 'Genius Hub Integration',
-  singleInstance: true,
   namespace: 'RogerSelwyn',
   author: 'Roger Selwyn',
   category: "My Apps",
