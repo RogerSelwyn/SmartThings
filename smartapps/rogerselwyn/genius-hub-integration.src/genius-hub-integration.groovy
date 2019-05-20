@@ -104,8 +104,8 @@ def authenticationPage(params) {
 
 def triggerPage () {
     logger "trigger", 'trace'
-	//refresh(['geniusId': 0, type: "trigger"])
-    verifyAuthentication()
+	refresh(['geniusId': 0, geniusType: "trigger"])
+    //verifyAuthentication()
 }
 
 
@@ -186,7 +186,7 @@ def updated() {
 
   initialize()
 
-  refresh(['geniusId': 0, type: "Install update"])
+  refresh(['geniusId': 0, geniusType: "Install update"])
 }
 
 def uninstalled() {
@@ -393,10 +393,10 @@ private void fetchZones() {
  *
  * @param handler  Name of the response handler function.
  */
-private void fetchZonesAsync(String handler, geniusId) {
+private void fetchZonesAsync(String handler, data) {
   logger "${app.label}: fetchZonesAsync ${handler} - ${geniusId}", 'trace'
 	def zonePath = ""
-  if (geniusId > 0) {
+  if (geniusType == 'room' || geniusType == 'switch') {
   	zonePath = "/" + geniusId
   }
   def requestParams = [
@@ -408,7 +408,7 @@ private void fetchZonesAsync(String handler, geniusId) {
     ],
   ]
 
-  asynchttp_v1.get(handler, requestParams, [ 'geniusId': geniusId])
+  asynchttp_v1.get(handler, requestParams, data)
 }
 
 /**
@@ -602,7 +602,7 @@ void pushSwitchState(Integer geniusId, Boolean value, Integer overridePeriod = 3
  * Refresh the data on all devices.
  */
 void refresh(data) {
-  fetchZonesAsync('updateAllZonesResponseHandler', data.geniusId)
+  fetchZonesAsync('updateAllZonesResponseHandler', data)
 }
 
 
@@ -644,7 +644,7 @@ private void updateAllZonesResponseHandler(response, data) {
   // We've had a successful request, so reset the current error
   state.currentError = null
 
-  if (data.geniusId == 0) {
+  if (data.geniusType == 'house') {
     def children = getChildDevices()
     children.each { child ->
       def geniusId = child.getGeniusId()
@@ -678,8 +678,8 @@ private void updateZoneResponseHandler(response, data) {
   // We've had a successful request, so reset the current error
   state.currentError = null
   
-  //refresh(['geniusId': data.geniusId, type: "updateZoneResponseHandler"])
-  runIn(30, 'refresh',[data: [geniusId: 0, type: "updateZoneResponseHandler"]])
+  //refresh(['geniusId': data.geniusId, geniusType: "updateZoneResponseHandler"])
+  runIn(30, 'refresh',[data: [geniusId: 0, geniusType: "updateZoneResponseHandler"]])
 }
 
 private void mapRoomUpdatesHandler(response, data) {
@@ -724,7 +724,7 @@ private void initialize() {
   unschedule()
 
   // Refresh data for all devices every 5 minutes
-  runEvery5Minutes('refresh',[data: [geniusId: 0, type: "Scheduled"]])
+  runEvery5Minutes('refresh',[data: [geniusId: 0, geniusType: "Scheduled"]])
   runEvery3Hours('verifyAuthentication')
 
 
