@@ -75,8 +75,8 @@ if [ ! -d /tmp/CheckUser ]
   mkdir /tmp/CheckUser
 fi
 
-baseURL=https://graph-eu01-euwest1.api.smartthings.com/api/smartapps/installations/`cat /tmp/CheckUser/smartApp`/
-atURL=?access_token=`cat /tmp/CheckUser/accessToken`
+baseURL=https://graph-eu01-euwest1.api.smartthings.com/api/smartapps/installations/`cat /jffs/asuswifi/smartApp`/
+atURL=?access_token=`cat /jffs/asuswifi/accessToken`
 peopleFile=/tmp/CheckUser/peopleData
 responseFile=/tmp/CheckUser/responseData
 response=
