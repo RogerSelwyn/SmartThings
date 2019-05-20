@@ -209,7 +209,7 @@ def refresh() {
   sendEvent(name: 'thermostatMode', value: 'auto', isStateChange: true, dispalyed: false)
   sendEvent(name: 'operatingState', value: 'idle', isStateChange: true)
   sendEvent(name: 'thermostatOperatingState', value: 'idle', isStateChange: true)
-  parent.refresh(['geniusId': state.geniusId, type: "house"])
+  parent.refresh(['geniusId': getGeniusId(), geniusType: getGeniusType()])
 }
 
 /**
