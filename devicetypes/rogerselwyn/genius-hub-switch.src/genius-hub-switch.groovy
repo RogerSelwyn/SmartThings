@@ -213,7 +213,7 @@ def on() {
 def refresh() {
   logger "${device.label}: refresh", 'trace'
 
-  parent.refresh(['geniusId': state.geniusId, type: "Switch"])
+  parent.refresh(['geniusId': getGeniusId(), geniusType: getGeniusType()])
 }
 
 /**

@@ -281,7 +281,7 @@ def extraHour() {
  */
 def refresh() {
   logger "${device.label}: refresh", 'trace'
-  parent.refresh(['geniusId': state.geniusId, type: "Room"])
+  parent.refresh(['geniusId': getGeniusId(), geniusType: getGeniusType()])
 }
 
 /**
