@@ -323,7 +323,7 @@ private void verifyAuthentication() {
         logger 'Authentication succeeded', 'trace'
       }
       else {
-        handleApiError(response, "verifyAuthentication")
+        handleApiError(response, "verifyAuthentication", "No data")
       }
     }
   } catch (groovyx.net.http.HttpResponseException e) {
@@ -376,7 +376,7 @@ private void fetchZones() {
         state.devices = devices
       }
       else {
-        handleApiError(response, "fetchZones")
+        handleApiError(response, "fetchZones", "No data")
       }
     }
   } catch (groovyx.net.http.HttpResponseException e) {
@@ -394,7 +394,7 @@ private void fetchZones() {
  * @param handler  Name of the response handler function.
  */
 private void fetchZonesAsync(String handler, data) {
-  logger "${app.label}: fetchZonesAsync ${handler} - ${geniusId}", 'trace'
+  logger "${app.label}: fetchZonesAsync ${handler} - ${data}", 'trace'
 	def zonePath = ""
   if (geniusType == 'room' || geniusType == 'switch') {
   	zonePath = "/" + geniusId
@@ -635,7 +635,7 @@ void revert(Integer geniusId) {
  */
 private void updateAllZonesResponseHandler(response, data) { 
   if (response.hasError()) {
-    handleAsyncApiError(response, "updateAllZonesResponseHandler")
+    handleAsyncApiError(response, "updateAllZonesResponseHandler", data)
     return
   }
 
@@ -644,7 +644,7 @@ private void updateAllZonesResponseHandler(response, data) {
   // We've had a successful request, so reset the current error
   state.currentError = null
 
-  if (data.geniusType == 'house') {
+  if (data.geniusType != 'room' && data.geniusType != 'switch') {
     def children = getChildDevices()
     children.each { child ->
       def geniusId = child.getGeniusId()
@@ -671,7 +671,7 @@ private void updateAllZonesResponseHandler(response, data) {
  */
 private void updateZoneResponseHandler(response, data) { 
   if (response.hasError()) {
-    handleAsyncApiError(response, "updateZoneResponseHandler")
+    handleAsyncApiError(response, "updateZoneResponseHandler", data)
     return
   }
 
@@ -684,7 +684,7 @@ private void updateZoneResponseHandler(response, data) {
 
 private void mapRoomUpdatesHandler(response, data) {
   if (response.hasError()) {
-    handleAsyncApiError(response, "mapRoomUpdatesHandler")
+    handleAsyncApiError(response, "mapRoomUpdatesHandler", data)
     return
   }
 
@@ -734,18 +734,18 @@ private getApiRootUrl() {
   return "https://my.geniushub.co.uk/v1/"
 }
 
-private void handleAsyncApiError(response, caller = "Unknown") {
-  logApiError(response.status, "API error received from: ${caller} - Message: ${response.getErrorMessage()}")
+private void handleAsyncApiError(response, caller = "Unknown", data) {
+  logApiError(response.status, "API error received from: ${caller} - Message: ${response.getErrorMessage()} - Data: ${data}")
 }
 
-private void handleApiError(response, caller = "Unknown") {
+private void handleApiError(response, caller = "Unknown", data) {
   if (response.status == 308) {
     // The api proxy server has changed url.
     logApiServerChange(response.headers['X-Genius-ProxyLocation'].value)
     return
   }
 
-  logApiError(response.status, "Unexpected error received from: ${caller} - Message: ${response.getErrorMessage()}")
+  logApiError(response.status, "Unexpected error received from: ${caller} - Message: ${response.getErrorMessage()} - Data: ${data}")
 }
 
 private void logApiError(statusCode, message) {
