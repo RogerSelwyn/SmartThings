@@ -396,8 +396,8 @@ private void fetchZones() {
 private void fetchZonesAsync(String handler, data) {
   logger "${app.label}: fetchZonesAsync ${handler} - ${data}", 'trace'
 	def zonePath = ""
-  if (geniusType == 'room' || geniusType == 'switch') {
-  	zonePath = "/" + geniusId
+  if (data.geniusType == 'room' || data.geniusType == 'switch') {
+  	zonePath = "/" + data.geniusId
   }
   def requestParams = [
     uri: getApiRootUrl(),
@@ -639,7 +639,8 @@ private void updateAllZonesResponseHandler(response, data) {
     return
   }
 
-  logger "updateAllZonesResponseHandler - ${data.geniusId}", "trace"
+  logger "updateAllZonesResponseHandler - Data: ${data} - Response: ${response.json}", "trace"
+
 
   // We've had a successful request, so reset the current error
   state.currentError = null
@@ -697,10 +698,18 @@ private void mapRoomUpdatesHandler(response, data) {
   	def child = getChildDevice("GENIUS-${data.geniusId}")
 	def updates = [:]
     // Use minimum battery level from all child devices (eg. motion sensor and radiator valves) as room battery level.
-    updates.minBattery = response.json
-      .findAll { it.state.containsKey('batteryLevel') }
-      .collect { it.state.batteryLevel }
-      .min { it }
+    
+    def minBattery = 100
+    response.json.each { device ->
+    	if (device.state.containsKey('batteryLevel')) {
+        	def deviceBattery = 100
+            if (device.state.batteryLevel == 255) {deviceBattery = 0}
+            else {deviceBattery = device.state.batteryLevel} 
+            
+            if (deviceBattery < minBattery) {minBattery = deviceBattery}
+        }
+    }
+    updates.minBattery = minBattery
 
     // Use maximum illuminance level from all child motion sensor devices as room illuminance level.
     updates.illuminance = response.json
