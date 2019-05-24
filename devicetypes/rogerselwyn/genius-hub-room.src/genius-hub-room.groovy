@@ -21,6 +21,10 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  */
+
+import java.text.SimpleDateFormat
+import groovy.time.*
+
 metadata {
   definition (name: 'Genius Hub Room', namespace: 'RogerSelwyn', author: 'Roger Selwyn') {
     capability 'Actuator'
@@ -120,12 +124,15 @@ metadata {
     valueTile('illuminance', 'device.illuminance', inactiveLabel: false, width: 1, height: 1) {
       state 'illuminance', label: '${currentValue} lux'
     }
-    valueTile('overrideEndTime', 'device.overrideEndTimeDisplay', width: 4, height: 1) {
+    valueTile('overrideEndTime', 'device.overrideEndTimeDisplay', width: 3, height: 1) {
       state 'default', label: '${currentValue}'
+    }
+    valueTile("lastUpdatedDt", "device.lastUpdatedDt", width: 3, height: 1, ) {
+      state "default", label: 'Data Last Received:\n${currentValue}'
     }
 
     main(['temp2'])
-    details(['thermostat', 'refresh', 'extraHour', 'revert', 'battery', 'illuminance', 'overrideEndTime'])
+    details(['thermostat', 'refresh', 'extraHour', 'revert', 'battery', 'illuminance', 'overrideEndTime', 'lastUpdatedDt'])
   }
 }
 
@@ -172,6 +179,8 @@ void updateState(Map values) {
 
   logger "${device.label}: updateState: ${values}", 'trace'
 
+  sendEvent(name: 'lastUpdatedDt', value: getDtNow()?.toString(), displayed: false, isStateChange: true)
+
   if (values?.containsKey('operatingState')) {
     sendEvent(name: 'operatingState', value: values.operatingState)
   }
@@ -181,14 +190,14 @@ void updateState(Map values) {
     if (device.currentValue('operatingState') != 'override' && values?.containsKey('defaultSetpoint')) {
     	updateSetpoint = values.defaultSetpoint
     }
-    sendEvent(name: 'heatingSetpoint', value: updateSetpoint, displayed: true)
-	sendEvent(name: 'thermostatSetpoint', value: updateSetpoint, displayed: false)
+    sendEvent(name: 'heatingSetpoint', value: updateSetpoint, unit: temperatureScale, displayed: true)
+	sendEvent(name: 'thermostatSetpoint', value: updateSetpoint, unit: temperatureScale, displayed: false)
     
   }
 
   if (values?.containsKey('sensorTemperature')) {
     def value = convertCelsiusToHubScale(values.sensorTemperature)
-    sendEvent(name: 'temperature', value: value, unit: "°${temperatureScale}", displayed: true) 
+    sendEvent(name: 'temperature', value: value, unit: temperatureScale, displayed: true) 
 	def newoperState
     def newMode
     def currentSetpoint = device.currentValue('heatingSetpoint')
@@ -214,7 +223,8 @@ void updateState(Map values) {
   }
 
   if (values?.containsKey('minBattery')) {
-    sendEvent(name: 'battery', value: values.minBattery, unit: '%', displayed: false)
+    if (values.minBattery == 255) {values.minBattery = 0}
+    sendEvent(name: 'battery', value: values.minBattery, unit: '%', displayed: true)
   }
 
   if (values?.containsKey('illuminance')) {
@@ -263,7 +273,7 @@ def getTempColors() {
  * Extend the override by an hour.
  */
 def extraHour() {
-  logger "${device.label}: refresh", 'trace'
+  logger "${device.label}: extraHour", 'trace'
 
   if (device.currentValue('operatingState') == 'override') {
     def overrideEndTime = device.currentValue('overrideEndTime')
@@ -303,7 +313,7 @@ def revert() {
 def setHeatingSetpoint(Double value) {
   logger "${device.label}: setHeatingSetpoint: ${value}", 'trace'
 
-  sendEvent(name: 'heatingSetpoint', value: value, unit: "°${temperatureScale}", displayed: true )  
+  sendEvent(name: 'heatingSetpoint', value: value, displayed: true )  
 
   def valueInCelsius = convertHubScaleToCelsius(value)
   parent.pushRoomTemperature(state.geniusId, valueInCelsius)
@@ -327,7 +337,7 @@ private void updateDisplay() {
   if (operatingState == 'override') {
     sendEvent(name: 'canModifyOverride', value: 'yes', displayed: false)
     if (overrideEndTime) {
-      sendEvent(name: 'overrideEndTimeDisplay', value: "Override ends ${overrideEndTime.format('HH:mm')}", displayed: false)
+      sendEvent(name: 'overrideEndTimeDisplay', value: "Override ends ${formatDt(overrideEndTime, 'HH:mm')}", displayed: false)
     }
   } else {
     sendEvent(name: 'canModifyOverride', value: '', displayed: false)
@@ -379,6 +389,26 @@ private void logger(message, String level = 'debug') {
       log.debug message
       break
   }
+}
+
+def getDtNow() {
+	def now = new Date()
+	return formatDt(now)
+}
+
+def formatDt(dt, dtFormat = "E MMM dd HH:mm:ss z yyyy") {
+	def tf = new SimpleDateFormat(dtFormat)
+	if(getTimeZone()) { tf.setTimeZone(getTimeZone()) }
+	else {
+		Logger("SmartThings TimeZone is not found or is not set... Please Try to open your ST location and Press Save...", "warn")
+	}
+	return tf.format(dt)
+}
+def getTimeZone() {
+	def tz = null
+	if(location?.timeZone) { tz = location?.timeZone }
+	if(!tz) { Logger("getTimeZone: Hub TimeZone is not found ...", "warn") }
+	return tz
 }
 
 //#endregion Helpers

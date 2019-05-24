@@ -21,6 +21,9 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  */
+import java.text.SimpleDateFormat
+import groovy.time.*
+
 metadata {
   definition (name: 'Genius Hub Switch', namespace: 'RogerSelwyn', author: 'Roger Selwyn', vid: 'generic-switch') {
     capability 'Actuator'
@@ -72,12 +75,15 @@ metadata {
       state 'default', label: null
       state 'yes', label: '', action: 'revert', icon: 'https://raw.githubusercontent.com/cumpstey/Cwm.SmartThings/master/smartapps/cwm/genius-hub-integration.src/assets/genius-hub-revert-120.png'
     }
-    valueTile('overrideEndTime', 'device.overrideEndTimeDisplay', width: 4, height: 1) {
+    valueTile('overrideEndTime', 'device.overrideEndTimeDisplay', width: 3, height: 1) {
       state 'default', label: '${currentValue}'
+    }
+    valueTile("lastUpdatedDt", "device.lastUpdatedDt", width: 3, height: 1, ) {
+      state "default", label: 'Data Last Received:\n${currentValue}'
     }
 
     main(['switch'])
-    details(['switch', 'brand', 'refresh', 'extraHour', 'revert', 'overrideEndTime'])
+    details(['switch', 'brand', 'refresh', 'extraHour', 'revert', 'overrideEndTime', 'lastUpdatedDt'])
   }
 }
 
@@ -142,6 +148,8 @@ String getGeniusType() {
  */
 void updateState(Map values) {
   logger "${device.label}: updateState: ${values}", 'trace'
+
+  sendEvent(name: 'lastUpdatedDt', value: getDtNow()?.toString(), displayed: false, isStateChange: true)
 
   if (values?.containsKey('operatingState')) {
     sendEvent(name: 'operatingState', value: values.operatingState)
@@ -246,7 +254,7 @@ private void updateDisplay() {
   if (state.switchMode == 'genius' && operatingState == 'override') {
     sendEvent(name: 'canModifyOverride', value: 'yes', displayed: false)
     if (overrideEndTime) {
-      sendEvent(name: 'overrideEndTimeDisplay', value: "Override ends ${overrideEndTime.format('HH:mm')}", displayed: false)
+      sendEvent(name: 'overrideEndTimeDisplay', value: "Override ends ${formatDt(overrideEndTime, 'HH:mm')}", displayed: false)
     }
   } else {
     sendEvent(name: 'canModifyOverride', value: '', displayed: false)
@@ -288,6 +296,26 @@ private void logger(message, String level = 'debug') {
       log.debug message
       break
   }
+}
+
+def getDtNow() {
+	def now = new Date()
+	return formatDt(now)
+}
+
+def formatDt(dt, dtFormat = "E MMM dd HH:mm:ss z yyyy") {
+	def tf = new SimpleDateFormat(dtFormat)
+	if(getTimeZone()) { tf.setTimeZone(getTimeZone()) }
+	else {
+		Logger("SmartThings TimeZone is not found or is not set... Please Try to open your ST location and Press Save...", "warn")
+	}
+	return tf.format(dt)
+}
+def getTimeZone() {
+	def tz = null
+	if(location?.timeZone) { tz = location?.timeZone }
+	if(!tz) { Logger("getTimeZone: Hub TimeZone is not found ...", "warn") }
+	return tz
 }
 
 //#endregion Helpers

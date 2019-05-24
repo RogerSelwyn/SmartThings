@@ -21,6 +21,10 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  */
+import java.text.SimpleDateFormat
+import groovy.time.*
+
+
 metadata {
   definition (name: 'Genius Hub House', namespace: 'RogerSelwyn', author: 'Roger Selwyn') {
     capability 'Actuator'
@@ -106,9 +110,12 @@ metadata {
         [value: 51, color: '#44b621']
       ]
     }
+    valueTile("lastUpdatedDt", "device.lastUpdatedDt", width: 3, height: 1, ) {
+      state "default", label: 'Data Last Received:\n${currentValue}'
+    }
 
     main(['temp2'])
-    details(['thermostat', 'refresh', 'override', 'battery'])
+    details(['thermostat', 'refresh', 'override', 'battery', 'lastUpdatedDt'])
   }
 }
 
@@ -166,6 +173,8 @@ String getGeniusType() {
  */
 void updateState(Map values) {
   logger "${device.label}: updateState: ${values}", 'trace'
+
+  sendEvent(name: 'lastUpdatedDt', value: getDtNow()?.toString(), displayed: false, isStateChange: true)
 
   if (values?.containsKey('sensorTemperature')) {
     def value = convertCelsiusToHubScale(values.sensorTemperature)
@@ -297,5 +306,24 @@ def getTempColors() {
 		]
 }
 
+def getDtNow() {
+	def now = new Date()
+	return formatDt(now)
+}
+
+def formatDt(dt) {
+	def tf = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy")
+	if(getTimeZone()) { tf.setTimeZone(getTimeZone()) }
+	else {
+		Logger("SmartThings TimeZone is not found or is not set... Please Try to open your ST location and Press Save...", "warn")
+	}
+	return tf.format(dt)
+}
+def getTimeZone() {
+	def tz = null
+	if(location?.timeZone) { tz = location?.timeZone }
+	if(!tz) { Logger("getTimeZone: Hub TimeZone is not found ...", "warn") }
+	return tz
+}
 
 //#endregion Helpers
