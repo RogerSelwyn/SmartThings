@@ -127,7 +127,7 @@ metadata {
 def installed() {
   // Set the default target temperature to something sensible,
   // otherwise it'll be zero.
-  sendEvent(name: 'heatingSetpoint', value: convertCelsiusToHubScale(21), unit: "°${temperatureScale}", displayed: false)
+  sendEvent(name: 'heatingSetpoint', value: convertCelsiusToHubScale(21), unit: temperatureScale, displayed: false)
 }
 
 //#endregion Event handlers
@@ -178,7 +178,7 @@ void updateState(Map values) {
 
   if (values?.containsKey('sensorTemperature')) {
     def value = convertCelsiusToHubScale(values.sensorTemperature)
-    sendEvent(name: 'temperature', value: value, unit: "°${temperatureScale}")    
+    sendEvent(name: 'temperature', value: value, unit: temperatureScale)    
   }
 
   if (values?.containsKey('minBattery')) {
@@ -203,7 +203,7 @@ def override() {
   logger "${device.label}: override", 'trace'
 
   def heatingSetpoint = device.currentValue('heatingSetpoint').toDouble()
-  sendEvent(name: 'heatingSetpoint', value: heatingSetpoint, unit: "°${temperatureScale}", isStateChange: true)
+  sendEvent(name: 'heatingSetpoint', value: heatingSetpoint, unit: temperatureScale, isStateChange: true)
 
   def heatingSetpointInCelsius = convertHubScaleToCelsius(heatingSetpoint)
   parent.pushHouseTemperature(heatingSetpointInCelsius)
@@ -229,7 +229,7 @@ def refresh() {
 def setHeatingSetpoint(Double value) {
   logger "${device.label}: setHeatingSetpoint: ${value}", 'trace'
 
-  sendEvent(name: 'heatingSetpoint', value: value, unit: "°${temperatureScale}", displayed: true)
+  sendEvent(name: 'heatingSetpoint', value: value, unit: temperatureScale, displayed: true)
   sendEvent(name: 'thermostatSetpoint', value: value, displayed: false)
 
 }
