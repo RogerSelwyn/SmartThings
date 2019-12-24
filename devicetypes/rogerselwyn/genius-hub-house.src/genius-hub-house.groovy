@@ -230,7 +230,7 @@ def setHeatingSetpoint(Double value) {
   logger "${device.label}: setHeatingSetpoint: ${value}", 'trace'
 
   sendEvent(name: 'heatingSetpoint', value: value, unit: temperatureScale, displayed: true)
-  sendEvent(name: 'thermostatSetpoint', value: value, displayed: false)
+  sendEvent(name: 'thermostatSetpoint', value: value, unit: temperatureScale, displayed: false)
 
 }
 
